@@ -61,6 +61,10 @@ func ChatCompletion(apiKey string, request ChatRequest) (ChatResponse, error) {
 
 	defer resp.Body.Close()
 
+	if resp.StatusCode >= 400 {
+		return ChatResponse{}, fmt.Errorf("HTTP error: %d %s", resp.StatusCode, http.StatusText(resp.StatusCode))
+	}
+
 	var response ChatResponse
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
