@@ -7,6 +7,13 @@ import (
 	"net/http"
 )
 
+type OpenAIError struct {
+	Message string `json:"message"`
+	Type    string `json:"type"`
+	Param   string `json:"param,omitempty"`
+	Code    string `json:"code,omitempty"`
+}
+
 type ChatRequest struct {
 	Model    string        `json:"model"`
 	Messages []ChatMessage `json:"messages"`
@@ -62,7 +69,12 @@ func ChatCompletion(apiKey string, request ChatRequest) (ChatResponse, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		return ChatResponse{}, fmt.Errorf("HTTP error: %d %s", resp.StatusCode, http.StatusText(resp.StatusCode))
+		var openaiErr OpenAIError
+		err := json.NewDecoder(resp.Body).Decode(&openaiErr)
+		if err != nil {
+			return ChatResponse{}, err
+		}
+		return ChatResponse{}, fmt.Errorf("%s: %s", resp.Status, openaiErr.Message)
 	}
 
 	var response ChatResponse
