@@ -17,6 +17,7 @@ type OpenAIError struct {
 type ChatRequest struct {
 	Model    string        `json:"model"`
 	Messages []ChatMessage `json:"messages"`
+	N        int           `json:"n,omitempty"`
 }
 
 type ChatMessage struct {
